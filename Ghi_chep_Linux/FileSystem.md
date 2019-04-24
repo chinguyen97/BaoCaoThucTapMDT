@@ -5,6 +5,7 @@
 
 - **Disk**: Thiết bị lưu trữ dữ liệu : /dev/sda, /dev/sdb
 - **Partitions**:  là các phân vùng của disk 
+Kiểm tra các parttion: cat /proc/partitions
 
 - **Các loại file system**:
 	- Hệ điều hành Linux hỗ trợ một số loại file system gốc dược cung cấp bởi nhà phát triển Linux: ext3, ext4, btrfs, XFS,.. 
@@ -40,32 +41,6 @@
 	- Không thể chia nhỏ phân vùng XFS
 	- Áp dụng cho các hệ thống Server lớn, ( Không hỗ trợ để lưu trữ thư mục root hay /boot trong hệ thống Linux)
 
-### 2. Mount 
 
-**Có 2 loại**: 
-- Mount tự động thông qua fiel cấu hình /etc/fstab
-- Mount thủ công
 
- Cú pháp: `mount -t <định dạng> <file thiết bị> <mount point>`
-mount point: thư mục trống đã tồn taị ( thướng đc tạo trong /mnt)
 
-**Cấu trúc file fstab**
-Fstab (File system table) là một bảng lưu trữ thông tin về các thiết bị, mount point và các thiết lập của nó. Khi khởi động hệ thống Linux sẽ đọc thông tin trong file này và tiến hành tự động mount thiết bị. Vì file /etc/fstab được lưu dưới dạng Plaintext nên chúng ta có thể sửa nó dễ dàng. 
-
-Cột 1: Tên thiết bị (UUID) `sudo blkid`
-- Cột 2: mount point
-- Cột 3: định dạng
-- Cột 4: các tùy chọn
-	- auto: tự động mount thiết bị khi máy tính khởi động
-	- noauto: Bạn phải tự chạy lệnh mount sau khi khởi động hệ thống.
-	- user: cho phép người dùng thông thường được quyền mount.
-	- nouser: chỉ có người dùng root mới có quyền mount.
-	- exec: cho phép chạy các file nhị phân (binary) trên thiết bị.
-	- noexec: không cho phép chạy các file binary trên thiết bị.
-	- ro (read-only): chỉ cho phép quyền đọc trên thiết bị.
-	- rw (read-write): cho phép quyền đọc/ghi trên thiết bị.
-	- sync: thao tác nhập xuất (I/O) trên filesystem được đồng bộ hóa.
-	- async: thao tác nhập xuất (I/O) trên filesystem diễn ra không đồng bộ.
-	- defaults: tương đương với tập các tùy chọn rw, suid, dev, exec, auto, nouser, async
-- Cột 5: là tùy chọn cho chương trình sao lưu filesystem. Điền 0: bỏ qua việc sao lưu, 1: thực hiện sao lưu.
-- Cột 6: là tùy chọn cho chương trình fsck dò lỗi trên filesystem. Điền 0: bỏ qua việc kiểm tra, 1: thực hiện kiểm tra.

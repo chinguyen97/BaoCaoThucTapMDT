@@ -36,16 +36,103 @@ KiB Swap:  2621432 total,  2621432 free,        0 used.   669688 avail Mem
      5 root       0 -20       0      0      0 S  0.0  0.0   0:00.00 kworker/0:0H           
      7 root      rt   0       0      0      0 S  0.0  0.0   0:00.00 migration/0   
 ```
-Dòng 1: Thời gian uptime (từ lúc khởi động), số người dùng thực tế đang hoạt động.
-Dòng 2: Thống kê về số lượng tiến trì, Tổng số tiến trình (total), số tiến trình đang hoạt động, đang ngủ/chờ, đã dừng và số không thể dừng hẳn
-Dòng 3-5: Thông tin CPU, RAM, bộ nhớ Swap.
-Các dòng còn lại liệt kê chi tiết về các tiến trình như định danh (PID), người dùng (USER), độ ưu tiên (PR), dòng lệnh thực thi (command)...
 
-`tp -b -n1 >/tmp/process.log` :  lưu lại danh sách tiến trình của lệnh top sang một tập tin .log
+#### 2.1.1. Dòng 1: Thời gian uptime (từ lúc khởi động), số người dùng thực tế đang hoạt động, load average.
+
+Có thể sử dụng lệnh `uptime` để hiển thị 3 thông số này. 
+```
+chi@ubuntus:~$ uptime
+ 11:55:53 up  3:44,  1 user,  load average: 0.01, 0.03, 0.05
+```
+**Load average** là các chỉ số tải trung bình của CPU trong các khoảng thời gian 1 phút, 5 phút và 15 phút, và những chỉ số này càng thấp càng tốt, càng cao thì chứng tỏ CPU của bạn đang overload
+
+  + Trường hợp: single-core CPU
+Các chỉ số nhỏ hơn 1 tức là hệ thống đang hoạt động trơn tru. =1 nghĩa là VPS hoạt động bình thường. >1. hệ thống xử lý đang bị kẹt. 
+Các nhà quản trị system thường lấy ở mức 0.70 làm chuẩn:Nếu bạn thấy chỉ số tải CPU trên mức 0.70 thì chúng ta cần chú ý. Nếu chỉ số này đạt trên mức 1.00 thì bạn phải lập tức tìm ra nguyên nhân, nhưng với khoảng thời gian trung bình 1 phút thì có thể chấp nhận, nếu nó ở chỉ số thứ 2 là 5 phút thì bạn sẽ ngủ không ngon đâu đấy.Nếu chỉ số tải CPU trên 5.00, bạn đang phải đối mặt với vấn đề nghiêm trọng. Đừng để VPS bạn tới mức này mới bắt đầu đi tìm nguyên nhân nhé.
+  + Trường hợp Nhiều core: 
+Tương ứng mỗi core sẽ đảm nhận 1.. chỉ số
+VD CPU i5: 4.00
+core i7 có 8 core: 8.00
+
+#### 2.1.2. Dòng 2: Thống kê về số lượng tiến trì, Tổng số tiến trình (total), số tiến trình đang hoạt động, đang ngủ/chờ, đã dừng và số không thể dừng hẳn
+
+- Tiến trình sleep
+Tiến trình ngủ bắt đầu bằng chữ S/D trong cột STAT
+Tiến trình ngủ ( chờ để 1 sự kiện hoàn thành)
+Lọc tiến trình đang ngủ : `ps aux | grep S/D`
+
+- Tiến trình zombie
+
+Lọc tiến trình zombie 
+`ps aux | grep Z`
+
+Zombie thực chất là một phần còn sót lại của một tiến trình đã ngừng hoạt động nhưng chưa được xử lý sạch. Những chương trình sau khi thoát để lại tiến trình Zombie thì điều đó đồng nghĩa với việc chương trình đó được lập trình không tốt.
+
+Muốn hiểu chính xác quá trình này, bạn cần có một chút hiểu biết về cách hoạt động của các tiến trình trong HĐH Linux. Một khái niệm bạn gần biết nữa là tiến trình cha mẹ (parent process) là tiến trình khi thực thi tạo ra các tiến trình khác.
+Trong Linux, khi một tiến trình kết thúc, HĐH sẽ không xóa nó khỏi bộ nhớ ngay lập tức. Thay vào đó, Linux vẫn giữ lại mô tả tiến trình (process discriptor) trong bộ nhớ (Mô tả tiến trình chỉ chiếm một lượng nhỏ bộ nhớ). Lúc này, trạng thái của tiến trình sẽ là EXIT_ZOMBIE và “cha mẹ” của tiến trình đó được thông báo rằng tiến trình con đã “chết” với tín hiệu tên là SIGCHLD. Tiến trình cha mẹ sau đó có nghĩa vụ thực thi chức năng wait() với nhiệm vụ đọc trạng thái và thông tin của tiến trình đã chết đó. Sau khi chức năng wait() được gọi, tiến trình Zombie lúc này sẽ được xóa hoàn toàn khỏi bộ nhớ.
+Quá trình này thường diễn ra khá nhanh, vì thế bạn sẽ không thể nhìn thấy những tiến trình thây ma. Tuy nhiên nếu tiến trình cha mẹ được lập trình cẩu thả và không bao giờ thực hiện chức năng wait(), tiến trình thây mà sẽ nằm lại trong bộ nhớ đến khi hệ thống được khởi động lại.
+
+**Nguy hiểm của tiến trình zombie**
+
+- Tiến trình Zombie hầu như không sử dụng tài nguyên hệ thống chỉ chiếm một chút dung lượng để lưu mô tả tiến trình. Mỗi tiến trình dưc[j gán 1 PID tuy zombie adx chết nhưng vẫ đc coi là 1 tiên strinfh và chiếm 1 PID. Linux có số lượng PID hữu hạn ( Bản 32bit - có 32767 PID). Nếu tiến trình Zombie dọng lại quá nhiều , PID bị chiếm hết thfi sẽ không theher bắt đầu các tiên strinfh khác. Tuy nheien nếu chỉ có 1 vài tiến trình sẽ ko gây hại cho máy tính của bạn. 
+
+**Cách dọn dẹp tiến trình Zombie** 
+Tiến trình Zombie là tiến trình đã chết nên về bản chất bạn không thể kill nó thêm 1 lấn nữa. Bạn cũng không cần dọn dẹp tiên strinfh thây ma trừ khi chúng tràn ra bộ nhớ. 
+Cách thứ nhất là gửi tín hiệu SIGCHLD đến tiến trình cha mẹ. Tín hiệu này sẽ ra lệnh cho tiến trình cha mẹ thực hiện chức năng wait() và dọn sạch những “đứa con” đó. Gửi tín hiệu với lệnh kill, thay thế pid bằng ID của tiến trình cha mẹ:
+
+`kill -s SIGCHLD pid`
+
+Tuy nhiên, nếu các tiến trình cha mẹ không được lập trình kỹ lưỡng, nó thậm chí sẽ lờ đi tín hiệu SIGCHLD và câu lệnh trên là vô ích, bạn sẽ phải tự mình “kill” tiến trình cha mẹ. Khi một tiến trình tạo ra tiến trình thây ma bị giết, tiến trình với tên init sẽ thừa kế lại những tiến trình thây ma và trở thành tiến trình cha mẹ mới (init là tiến trình đầu tiên khởi động khi Linux khởi động, có PID là 1), sau đó init sẽ thực hiện định kỳ chức năng wait() để dọn dẹp. Bạn có thể khởi động lại tiến trình cha mẹ sau khi tắt chúng đi.
+
+#### 2.1.3. Dòng 3
+Dòng thứ 3 hiển thị % sử dụng CPU dành cho acc stacs vụ khác nhau, bao gồm % CPU từ user (us), system (sy), low-priority processes (nice time, hoặc ni), idle time (id) thời gian CPU rảnh , wait for I/O processes (wa) Thời gian CPU dành để chờ I/O hoàn thành, time handling hardware interruptions (hi) Thời gian dành cho ngăt sx]r lý phần cứng, time handling software interruptions (si) Thời gian dành cho ngắt xử lý phần mềm, stolen time from the virtual machine (st) Trong môi trường ảo hóa, một phần tài nguyên CPU được cung cấp cho mỗi máy ảo (VM). HĐH phát hiện khi nào có việc phải làm, nhưng nó không thể thực hiện chúng vì CPU đang bận trên một số VM khác. Lượng thời gian bị mất theo cách này là thời gian ăn cắp thời gian, được hiển thị là st.
+#### 2.1.4. 
+
+- Dòng thứ 4 hiển thị tình trạng sử dụng Memory theo kilobytes.
+- Dòng 5 là Swap theo kilobytes.
+- Các dòng còn lại liệt kê chi tiết về các tiến trình như định danh (PID), người dùng (USER), độ ưu tiên (PR), dòng lệnh thực thi (command)...
+
+|Comments|Mô tả|
+|---|---|
+|PID| ID process|
+|user|user|
+|PR|Hiển thị mức độ ưu tiên lập lịch của 1 uy trình theo quan điểm của kernel|
+|NI|nice Giá trị `nice` của 1 tiến trình|
+|VIRT| Tỏng bộ nhớ tiêu thụ bởi 1 quá trình|
+|RES|Là bộ nhớ được tiêu thụ bởi tiến trình RAM|
+|SHR| Số lượng bộ nhớ chia sẻ với các quy trình khác|
+|S| STATE- Trạng thái của 1 tiến trình|
+|%CPU|% chiếm dụng dug lượng CPU|
+|%MEM| % Tổng RAM sẵn có|
+|TIME +|Tổng thời gian CPU được sử dụng bởi lệnh|
+|COMMAND|Hiện thị tên accs quy trình|
+
+#### 2.1.5. Một số tác vụ khác của lệnh top
+
+- Top đi kèm gói tin `procps-ng`
+```
+[chinguyen@CentOS7 ~]$ top -v
+     procps-ng version 3.3.10
+```
+
+- Lưu lại danh sách tiến trình của lệnh top sang một tập tin .log: `tp -b -n1 >/tmp/process.log` 
 
 - Hoặc gửi một email chứa các thông tin đang có 
 
 `top -b -n1 | mail -s 'Process snapshot' you@example.com`
+
+- Sắp xếp danh sách các tiến trình: Chạy lệnh top sau đó ấn phím
+  - **M** to sort by memory usage
+  - **P** to sort by CPU usage
+  - **N** to sort by process ID
+  - **T** to sort by the running time
+Mặc định nó sẽ sắp xêp stheo thứ tự giảm dần. Để sắp xếp theo thứ tự tăng dần ấn **R**
+- Show full paths
+Chạy lệnh top và ấn `c` . ấn `c` để quay trở lại mặc định
+
+- Hiện thị tiến trình theo phân cấp cha con. Ấn phím H chỉnh về mặc định ấn lại H
+
+- Thay đổi giao diện hiển thị ấn 't' và `m`
 
 ### 2.2. ps Liệt kê các tiến trình
 ```
@@ -112,6 +199,7 @@ root       1266  0.0  0.2  18452  2440 pts/0    R+   08:06   0:00 ps -u
 ```
 
 Ý nghĩa các trường: 
+
 |Trường|Mô tả|
 |----|----|
 |User/UID|Tên tiến trình|
@@ -134,8 +222,12 @@ root       1266  0.0  0.2  18452  2440 pts/0    R+   08:06   0:00 ps -u
 - `ps -u abc`: Xem tiến trình chạy bởi người dùng abc
 - `ps -U root -u root -N` Xem mọi tiến trình của người dùng root
 
-### 2.3: pstree
-- pstree: Hiển thị tiến trình dưới dạng cây (ko hỗ trợ trên centos7)
+### 2.3: Hiển thị tiến trình dạng cây
+
+- Với ubuntu: Có thể sử sụng 1 trong các câu lệnh 
+
+`pstree` or `ps -ejH` /  `ps -axjf`
+- CentOS7: Không hỗ trợ lệnh `pstree` nên chỉ sử dụng được 1 trong 2 câu lệnh: `ps -ejH` or `ps -axjf`
 
 ### 2.4: Dừng tiến trình đang hoạt động
 
@@ -148,10 +240,37 @@ root       1266  0.0  0.2  18452  2440 pts/0    R+   08:06   0:00 ps -u
 - `pkill` & `killall`
 
 Hai câu lệnh này cho phép bạn kill tiến trình bằng cách cung cấp tên của chúng:
+CentOS7 ko hỗ trợ `killall` nên cần phải tải gói `psmisc`;
+
+`yum install psmisc`
 
 - `renice` yêu cầu cung cấp PID của tiến trình
 
-- `kill -9 PID`: ngừng thi hành tiến trình mà không bị các tiến trình khác can thiệp 
+
+- `kill -[POSIX signal] PID`
+
+Để liệt kê danh sách các tín hiệu POSIX `kill -l`
+
+```
+[chinguyen@CentOS7 ~]$ kill -l
+ 1) SIGHUP      2) SIGINT      3) SIGQUIT     4) SIGILL      5) SIGTRAP
+ 6) SIGABRT     7) SIGBUS      8) SIGFPE      9) SIGKILL    10) SIGUSR1
+11) SIGSEGV    12) SIGUSR2    13) SIGPIPE    14) SIGALRM    15) SIGTERM
+16) SIGSTKFLT  17) SIGCHLD    18) SIGCONT    19) SIGSTOP    20) SIGTSTP
+21) SIGTTIN    22) SIGTTOU    23) SIGURG     24) SIGXCPU    25) SIGXFSZ
+26) SIGVTALRM  27) SIGPROF    28) SIGWINCH   29) SIGIO 30) SIGPWR
+31) SIGSYS     34) SIGRTMIN   35) SIGRTMIN+1 36) SIGRTMIN+2 37) SIGRTMIN+3
+38) SIGRTMIN+4 39) SIGRTMIN+5 40) SIGRTMIN+6 41) SIGRTMIN+7 42) SIGRTMIN+8
+43) SIGRTMIN+9 44) SIGRTMIN+10     45) SIGRTMIN+11     46) SIGRTMIN+12     47) SIGRTMIN+13
+48) SIGRTMIN+14     49) SIGRTMIN+15     50) SIGRTMAX-14     51) SIGRTMAX-13     52) SIGRTMAX-12
+53) SIGRTMAX-11     54) SIGRTMAX-10     55) SIGRTMAX-9 56) SIGRTMAX-8 57) SIGRTMAX-7
+58) SIGRTMAX-6 59) SIGRTMAX-5 60) SIGRTMAX-4 61) SIGRTMAX-3 62) SIGRTMAX-2
+63) SIGRTMAX-1 64) SIGRTMAX   
+```
+Thông tin các tín hiệu có thể xem 
+[tại đây](https://en.wikipedia.org/wiki/Signal_(IPC)
+
+`kill -9`: Gửi tín hiệu SIGKILL đến 1 tiến trình để nó chấm dứt ngay lập tức ( Trừ các tiens trình zombie, init process,...)
 
 ### 3. Tìm kiếm một tiến trình
 VD: pgrep sshd
@@ -168,9 +287,9 @@ cài đăt ubuntu
 # apt-get install atop 
 
 Để hiển thị gõ htop / atop
-
-
-slof 
+ 
 
 ***Tài liệu tham khảo:***
-https://cuongquach.com/linux-huong-dan-su-dung-chuong-trinh-lenh-lsof-tren-linux.html
+[1]https://cuongquach.com/linux-huong-dan-su-dung-chuong-trinh-lenh-lsof-tren-linux.html
+
+[2]https://www.booleanworld.com/guide-linux-top-command/

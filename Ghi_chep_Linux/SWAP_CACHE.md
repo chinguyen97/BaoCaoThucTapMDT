@@ -9,6 +9,8 @@ Khi có bộ nhớ SWAP, khi RAM hết thì hệ thống server sẽ tự độn
 
 Lưu ý: SWAP là 1 vùng của ổ cứng nên tốc độ xử lý chậm hơn RAM vật lý. Ko thể coi swap là phương pháp thay tehes hoàn toàn cho RAM vật lý được. 
 
+Kích thước SWAP khuyến nghị = kích thước RAM hoặc 1/2 RAM
+
 #### 1.2. Cách khởi tạo 
 - Cách kiểm tra Swap trước khi tiến hành tạo fiel swap cần kiểm tra hệ thống đã kích hoạt SWAP chưa bằng câu lệnh: 
 `swapon -s`
@@ -24,6 +26,10 @@ Tạo 512MB SwapFile (1024x512MB=524588 block size)
 ```
 sudo dd if=/dev/sdb1 of=/swapfile bs=1024 count=524288`
 ```
+
+Hoặc `sudo fallocate -l 512m /swapfile`
+(Lệnh này sẽ tạo file swapfile có kích thước 512M tại /. Để tạo swap 2Gb thay 512m = 2G)
+
 - Tạo phân vùng SWAP bằng câu lệnh 
 
 `mkswap /swapfile`
@@ -31,6 +37,7 @@ sudo dd if=/dev/sdb1 of=/swapfile bs=1024 count=524288`
 - Kích hoạt swap 
 
 `swapon /swapfile`
+
 - Kiểm tra lại 
 
 `swapon -s`
@@ -50,6 +57,27 @@ Ví dụ: Thêm dòng
 
 **Xóa bộ nhớ swap**
 `swapoff -a && swapon -a`
+
+#### 1.3. Thiết lập Swappiness 
+
+Tham số Swappiness sẽ quyết định khi nào các tài nguyên và dữ liệu được lưu giữ trong bộ nhớ RAM sẽ được di chuyển đến không gian Swap.
+
+- Swappiness có giá trị từ 0-100.Swappiness có giá trị càng lớn thì hệ thống sẽ sử dụng Swap càng sớm càng tốt. Swappiness có giá trị càng nhỏ thì hệ thống sẽ sử dụng Swap càng chậm càng tốt.
+	+ swappiness = 0: swap chỉ được dùng khi RAM được sử dụng hết.
+	+ swappiness = 10: swap được sử dụng khi RAM còn 10%.
+	+ swappiness = 100: swap được ưu tiên như là RAM.
+ 
+- Kiểm tra giá trị swappiness `cat /proc/sys/vm/swappiness` 
+
+- Thay đổi gía trị của Swappiness `sudo sysctl vm.swappiness=10`
+
+Tuy nhiên việc thay đổi này không có giá trị trong các lần khởi động tiếp theo. 
+
+- Để thiết lập giá trị này vĩnh viễn edit file `/etc/sysctl.conf`
+
+Tìm đến dòng `wm.swappines` thay bằng `wm.swappiness=10`
+
+Lưu file và khởi động lại máy. 
 
 ### 2. Cache
 #### 2.1. Giới thiệu

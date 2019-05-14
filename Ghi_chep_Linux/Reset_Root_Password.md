@@ -110,4 +110,35 @@ switch_root:/# exec /sbin/reboot
 Sau khi reboot vào hệ thống thành công thì bạn có thể đăng nhập bằng mật khẩu mới. 
 
 
-### Tài liệu tham khảo: https://cuongquach.com/reset-root-password-tren-ubutnu-14-16.html
+### 3. Thay đổi passwd
+#### 3.1. Thay đổi trục tiếp
+Command `passwd user_name`
+
+#### 3.2. Thay đổi bằng file /etc/shadow 
+
+- Cách 1: Mã hoa mật khẩu sha
+
+Nếu chưa cài đặt mật khẩu passwd cần cài đặt gói whois `apt-get install whois` 
+
+Mã hóa pass: 
+- `mkpasswd -m sha-256 yourpasss`
+Hoặc `mkpasswd -m sha-521 yourpasss`
+
+Copy mk và paste vào file /etc/shadow
+
+- Cách 2: 
+
+`openssl passwd -1 -salt [salt value] {password}`
+
+vd: 
+```
+root@ubuntus:~# openssl passwd -1 -salt root 123456
+$1$root$j0bp.KLPyr.u9kgQ428D10
+```
+
+
+### Tài liệu tham khảo: 
+
+[1]https://cuongquach.com/reset-root-password-tren-ubutnu-14-16.html
+
+[2]https://www.hackingarticles.in/editing-etc-passwd-file-for-privilege-escalation/

@@ -227,7 +227,13 @@ root       1266  0.0  0.2  18452  2440 pts/0    R+   08:06   0:00 ps -u
 - Với ubuntu: Có thể sử sụng 1 trong các câu lệnh 
 
 `pstree` or `ps -ejH` /  `ps -axjf`
-- CentOS7: Không hỗ trợ lệnh `pstree` nên chỉ sử dụng được 1 trong 2 câu lệnh: `ps -ejH` or `ps -axjf`
+
+- CentOS7: Không hỗ trợ lệnh `pstree` 
+Nên phải cài đặt gói `psmic`
+
+`yum install psmic`
+
+Cũng sử dụng được 2 câu lệnh: `ps -ejH` or `ps -axjf`
 
 ### 2.4: Dừng tiến trình đang hoạt động
 

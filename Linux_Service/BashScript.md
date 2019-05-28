@@ -49,15 +49,7 @@ Cách sử dụng biến:
 Vd: `$a`
 
 
-Một số chương trình cần truyền tham số dòng lệnh vào để sử dụng, Bash cho phép sử dụng một số biến đặc biệt sau:
-
-$0: Tên của file script.
-$1 -> $9: Các tham số truyền vào
-$#: Số lượng của tham số truyền vào
-$\*: Danh sách các tham số được truyền vào
-(các trường hợp $# và $\* sẽ không bao gồm $0)
-
-Đặc biệt, có thể lưu đầu ra của một câu lệnh khác vào một biến bằng cách sử dụng một trong 2 cách sau:
+Có thể lưu đầu ra của một câu lệnh khác vào một biến bằng cách sử dụng một trong 2 cách sau:
 	- Dùng dấu backtick: **var_name=`command`**
 	- Dùng dấu dollar: **var_name=$(command)**
 

@@ -135,7 +135,18 @@ Hoặc `cat /proc/partitions`
 
 top : kích thước bộ nhớ
 
-### 3. Thay đổi hostname
+### 3. Command lshw
+
+- Install: yum install lshw
+- Display full information hardware: `sudo lshw`
+- Display information in short: `sudo lshw -short`
+- Display only memory information: `lshw -short -class memory`
+- Display processor information: `sudo lshw -class processor`
+- Disk drives: `sudo lshw -short -class disk`
+- Network adapter information: `sudo lshw -class network`
+- Display address details with businfo (pci, usb, scsi and ide devices): `sudo lshw -businfo`
+
+### 4. Thay đổi hostname
 
 - Xem tên máy
 `hostname`

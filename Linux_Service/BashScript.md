@@ -161,11 +161,199 @@ Chú ý: Phải có khoảng trống giữa 2 toán tử: Ví dụ: 2 + 2 (Đún
 - Toán tử `==` phép bằng: [ $a == $b ] Sẽ trả về kết quả False
 - Toán tử `!=` phép không bằng: [ $a != $b ] Sẽ trả về kết quả True
 
+```
+[root@centos7 user]# cat test.sh 
+
+#!usr/bin/bash 
+a=30
+b=20
+c=`expr $a - $b`
+echo $c
+```
+
+```
+[root@centos7 user]# bash test.sh 
+10
+
+```
+
 2. Toán tử quan hệ 
 
+Toán tử quan hệ hỗ trợ các giá trị số. 
+Giả sử gán 2 biến: a=10, b=20;
+|Toán tử| Mô tả| Ví dụ|
+|----|----|----|
+|-eq|Kiểm tra 2 toán hạng có cân bằng không, nếu cân bằng thì điều kiện đúng|[ $a -eq $b ] là không đúng|
+|-ne| Kiểm tra 2 toán hạng có cân bằng không, nếu không cần bằng thì điều kiện đúng|[ $a -ne $b ] là đúng|
+|-gt| Kiểm tra nếu toán hạng trái lớn hơn toán hạng bên phải, nếu đúng thì điều kiện đúng| [ $a -gt $b ] là ko đúng|
+|-lt| Kiểm tra nếu toán hạng trái nhỏ hơn toán hạng bên phải, nếu đúng thì điều kiện đúng| [ $a -lt $b ] là đúng|
+|-ge| Kiểm tra nếu toán hạng trái bằng toán hạng bên phải, nếu đúng thì điều kiện đúng| [ $a -ge $b ] là ko đúng|
+|-le| Kiểm tra nếu toán hạng trái nhỏ hơn hoặc toán hạng bên phải, nếu đúng thì điều kiện đúng| [ $a -gt $b ] là ko đúng|
+
+3. Toán tử logic
+
+Giả sử: Gán a=10. b=20.
+
+|Toán tử| Mô tả| Ví dụ|
+|----|----|----|
+|!|Phép phủ định. Nếu điều kiện đúng thì giá trị sai và ngược lại|[ !false ] là true|
+|-o|Phép hoặc|[ $a -lt 20 -o $b -gt 100 ] là true|
+|-a|Phép và|[ $a -lt 20 -a $b -gt 100 ] là false.|
+
+4. Toán tử chuỗi
+
+Gán: a="abc", b="egf"
+
+|Toán tử|	Miêu tả|	Ví dụ|
+|----|----|----|
+|=	|Kiểm tra 2 chuỗi có giống nhau không, nếu có thì điều kiện là đúng|[ $a = $b ] là không đúng.|
+|!=	|Kiểm tra 2 chuỗi có giống nhau không, nếu không cân bằng thì điều kiện là đúng.|[ $a != $b ] là đúng.|
+|-z| Kiểm tra nếu kích thước chuỗi đã cho là 0 thì trả về gía trị đúng|[ -z $a ] là không đúng.|
+|-n| Kiểm tra kích thước cảu toán hạng, Nếu độ dài khác 0 thì nó trả về là đúng| [ -z $a ] là đúng|
+|str| Kiểm tra nếu str không là chuỗi trống. Nếu là chuỗi trống thì nó trả về là sai.|[ str $a ] là đúng.|
+
+5. Toán tử kiểm tra file 
 
 
-### 6. Câu điều kiện
+https://vietjack.com/unix/cac_toan_tu_shell_co_ban_trong_unix_linux.jsp
+
+### 6. Vòng lặp
+
+1. Vòng lặp while
+
+Cú pháp:
+
+```
+while command
+do 
+	các lệnh thực thi nếu command đúng
+done
+```
+
+2. Vòng lặp for
+
+Cú pháp:
+
+```
+for var in word1 word2 ... wordN
+do
+   cac lenh de thuc thi cho moi word.
+done
+```
+var là tên của một biến và word1 tới wordN là dãy các ký tự phân biệt nhau bởi các khoảng trống. Cứ mỗi lần vòng lặp thực thi, giá trị của biến var được thiết lập tới word tiếp theo trong danh sách các word, từ word1 tới wordN.
+
+3. Vòng lặp until
+
+```
+until command
+do
+   cac lenh duoc thuc thi toi khi command la true
+done
+```
+Nếu giá trị kết quả là false, thì lệnh được thực thi. Nếu command là true, thì khi đó các lệnh sẽ không được thực hiện và chương trình sẽ nhảy tới dòng lệnh sau lệnh done.
+
+Thực hành:
+
+
+
+### 7. Hàm
+
+- Tạo 1 hàm
+
+```
+function_name () {
+	list of commands
+}
+```
+Vi du:
+```
+#!/bin/bash
+
+#Xác định hàm
+
+Hello (){
+	echo "OI. Buon ngu qua"
+}
+#Gọi hàm
+Hello
+```
+
+- Truyền tham số cho hàm
+
+Các tham số được đâị diện bởi $1, $2,...
+
+Ví dụ: Truyền vào 2 tham số Zara và Ali
+
+```
+#!/bin/bash
+Hello (){
+	echo " Hello World $1 $2"
+	
+}
+Hello Zara Ali
+```
+Kết quả: 
+
+```
+[root@centos7 user]# bash chi.sh
+ Hello World Zara Ali
+```
+- Trả về các giá trị từ 1 hàm
+
+- Lồng các hàm 
+
+```
+#!/bin/bash
+function_1 (){
+	echo "This is function 1"
+	function_2
+}
+function_2 (){
+	echo "This is function 2"
+	}
+function_1
+```
+Kết quả: 
+
+```
+[root@centos7 user]# bash chi.sh
+This is function 1
+This is function 2
+```
+- Gọi hàm từ dòng nhắc lệnh 
+
+### 8. Điều hướng input, output
+
+- Điều hướng output
++ **>**: Hiển thị đầu ra vào 1 file, ghi đè lên dữ liệu nếu file không trống.
+Ví dụ: 
+```
+[root@centos7 user]# echo Linux Service > file1
+[root@centos7 user]# cat file1
+Linux Service
+``` 
++ **>>**: Hiển thị kết quả đầu ra vào 1 file. ghi chèn vào dữ liệu nếu file không trống. 
+
+- Điều hướng lại input 
++ **<** Điều hướng lại input của lệnh
+Ví dụ: để tính toán số lượng dòng trong một tệp users trên, bạn có thể chạy lệnh như sau:
+```
+[root@centos7 user]# wc -l list
+19 list
+```
+Có thể tính toán số dòng trong file bởi điều hướng lại input tiêu chuẩn của lệnh wc từ tệp users.
+
+```
+[root@centos7 user]# wc -l < list
+19
+```
+Sự khác nahu của 2 trương hợp: Trường hợp 1 hiện cả tên file và số dòng, trương hợp 2 chỉ hiện số dòng. Vì trong trường hợp 1 wc biết nó đang đọc input từ tệp list. Ytong trường hợp 2 nó chỉ biết rằng nó đang input của nó từ input tiêu chuẩn vì thế nó không hiển thị tên file.
++ **<<** : Here document. sử dụng để điều hướng lại input vào trong một shell script hoặc chương trình tương tác.
+
+https://vietjack.com/unix/dieu_huong_io_trong_unix_linux.jsp
+
+
+### 9. Câu điều kiện
 
 Bash hỗ trợ 3 dạng câu điều kiện
 
@@ -213,4 +401,3 @@ exit
 fi
 ```
 
-https://viblo.asia/p/don-gian-hoa-tac-vu-trong-linux-voi-bash-script-phan-1-gGJ59gaGZX2

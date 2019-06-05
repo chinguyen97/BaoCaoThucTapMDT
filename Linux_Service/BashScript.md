@@ -401,3 +401,27 @@ exit
 fi
 ```
 
+### Thực hành
+
+Bài toán: Cho danh sách các package : wget, curl, mtr , httpd. Viết bash script liệt kê các package nằm trong danh sách đã sẵn trên hệ thống , sau đó cài đặt các package chưa được cài đặt.
+
+```
+#!/bin/bash
+Package=(wget curl mtr httpd)
+
+for i in "${Package[@]}"
+do 
+	if yum list intalled ${i}; then
+		echo "${i} already installed"
+		echo $i >> /home/user/installed
+	else 
+		echo ${i} has not been insatlled
+		echo $i >> /home/user/install 
+	fi
+done
+
+for i in `cat /home/user/install`
+do 
+	yum install -y $i
+done
+```

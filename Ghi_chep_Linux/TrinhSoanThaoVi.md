@@ -165,6 +165,12 @@ Ví dụ người dùng gõ i để insert dòng chữ “hello world”, sau đ
 
 - Sử dụng số **N** đi trước phím lệnh để lặp lại **N** lần tác dụng của lệnh. Ví dụ, 3dw sẽ xóa 3 từ tính từ vị trí con trỏ.
 
+- Trình soạn thảo Vi có phân biệt chữ hoa chữ thường. Vì vậy khi sử dụng câu lệnh cần hết sức chú ý. 
+
+
+Sử dụng bộ gõ tiếng việt 
+https://gocinfo.com/go-tieng-viet-tren-ubuntu-linux.html
+
 
 ### Tài liệu thao thảo: https://vietjack.com/unix/trinh_soan_thao_vi_trong_unix_linux.jsp
 

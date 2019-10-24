@@ -74,10 +74,10 @@ Quá trình này thường diễn ra khá nhanh, vì thế bạn sẽ không th�
 
 **Nguy hiểm của tiến trình zombie**
 
-- Tiến trình Zombie hầu như không sử dụng tài nguyên hệ thống chỉ chiếm một chút dung lượng để lưu mô tả tiến trình. Mỗi tiến trình dưc[j gán 1 PID tuy zombie adx chết nhưng vẫ đc coi là 1 tiên strinfh và chiếm 1 PID. Linux có số lượng PID hữu hạn ( Bản 32bit - có 32767 PID). Nếu tiến trình Zombie dọng lại quá nhiều , PID bị chiếm hết thfi sẽ không theher bắt đầu các tiên strinfh khác. Tuy nheien nếu chỉ có 1 vài tiến trình sẽ ko gây hại cho máy tính của bạn. 
+- Tiến trình Zombie hầu như không sử dụng tài nguyên hệ thống chỉ chiếm một chút dung lượng để lưu mô tả tiến trình. Mỗi tiến trình được gán 1 PID tuy zombie đã chết nhưng vẫn được coi là 1 tiến trình và chiếm 1 PID. Linux có số lượng PID hữu hạn ( Bản 32bit - có 32767 PID). Nếu tiến trình Zombie dọng lại quá nhiều , PID bị chiếm hết thfi sẽ không thể bắt đầu các tiến trình khác. Tuy nhiên nếu chỉ có 1 vài tiến trình sẽ ko gây hại cho máy tính của bạn. 
 
 **Cách dọn dẹp tiến trình Zombie** 
-Tiến trình Zombie là tiến trình đã chết nên về bản chất bạn không thể kill nó thêm 1 lấn nữa. Bạn cũng không cần dọn dẹp tiên strinfh thây ma trừ khi chúng tràn ra bộ nhớ. 
+Tiến trình Zombie là tiến trình đã chết nên về bản chất bạn không thể kill nó thêm 1 lần nữa. Bạn cũng không cần dọn dẹp tiến trình Zombie trừ khi chúng tràn ra bộ nhớ. 
 Cách thứ nhất là gửi tín hiệu SIGCHLD đến tiến trình cha mẹ. Tín hiệu này sẽ ra lệnh cho tiến trình cha mẹ thực hiện chức năng wait() và dọn sạch những “đứa con” đó. Gửi tín hiệu với lệnh kill, thay thế pid bằng ID của tiến trình cha mẹ:
 
 `kill -s SIGCHLD pid`
@@ -161,7 +161,7 @@ root       7687   7315  0 11:26 pts/0    00:00:00 ps -f
 |Cột|Miêu tả|
 |---|---|
 |UID|	ID người sử dụng mà tiến trình này thuộc sở hữu (người chạy nó).|
-|PID|	Process ID.|
+|PID|	Process ID. (Mỗi tiến trình đều có 2 ID được gán cho nó PID Process ID, PPID Parent Process)|
 |PPID|	Process ID gốc (ID của tiến trình mà bắt đầu nó).|
 |C|	CPU sử dụng của tiến trình.|
 |STIME|	Thời gian bắt đầu tiến trình.|
@@ -170,12 +170,13 @@ root       7687   7315  0 11:26 pts/0    00:00:00 ps -f
 |CMD|	Lệnh mà bắt đầu tiến trình này.|
 
 Các option 
--a	Chỉ thông tin về tất cả người sử dụng. ps -a =ps
--x	Chỉ thông tin về các tiến trình mà không có terminal.
--u	Chỉ thông tin thêm vào như chức năng -f.
--e	Hiển thị thông tin được mở rộng.
--U user xem process của các user khác
--l Thể hiện dưới dạng danh sách dài
+  - **-a**	Chỉ thông tin về tất cả người sử dụng. ps -a =ps
+  - **-x**	Chỉ thông tin về các tiến trình mà không có terminal.
+  - **-u**	Chỉ thông tin thêm vào như chức năng -f.
+  - **-e**	Hiển thị thông tin được mở rộng.
+  - **-U**  user xem process của các user khác
+  - **-l** Thể hiện dưới dạng danh sách dài
+
 ```
 [root@localhost /]# ps -l
 F S   UID    PID   PPID  C PRI  NI ADDR SZ WCHAN  TTY          TIME CMD
@@ -281,8 +282,10 @@ Thông tin các tín hiệu có thể xem
 ### 3. Tìm kiếm một tiến trình
 VD: pgrep sshd
 Kết quả sẽ cho chúng ta biết ID của chương trình firefox là gì.
+
 VD : $ pgrep -u root sshd
 ìm tiến trình của chương trình sshd do người dùng root thực hiện.
+
 Hoặc: `ps aux | grep httpd ps aux | grep apache2 ps aux | grep  firefox`
 
 ### 4. Quản lý tiến trình bằng giao diện
